@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Etiquetas</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Formulário -->
+        <div class="bg-white p-6 rounded shadow">
+            <h2 class="text-xl font-bold mb-4">Dados da Etiqueta</h2>
+            <form id="etiquetaForm" method="POST" class="space-y-4">
+                <div>
+                    <label class="font-semibold">Material:</label>
+                    <input type="text" name="material" class="w-full p-2 border rounded" required>
+                </div>
+                <div>
+                    <label class="font-semibold">Auto. Sercon - Lote:</label>
+                    <input type="number" name="lote" class="w-full p-2 border rounded" required>
+                </div>
+                <div>
+                    <label class="font-semibold">Data Esterilização:</label>
+                    <input type="date" name="data_esterilizacao" class="w-full p-2 border rounded" required>
+                </div>
+                <div>
+                    <label class="font-semibold">Validade:</label>
+                    <input type="date" name="validade" class="w-full p-2 border rounded" required>
+                </div>
+                <div>
+                    <label class="font-semibold">Temperatura Ciclo:</label>
+                    <select name="temperatura" class="w-full p-2 border rounded">
+                        <option value="121ºC">121ºC</option>
+                        <option value="134ºC">134ºC</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="font-semibold">Resp. Esterilização:</label>
+                    <select name="responsavel" class="w-full p-2 border rounded">
+                        <option>Herlania Figueira</option>
+                        <option>Macenilde Lopes</option>
+                        <option>Patricia de Castro</option>
+                        <option>Silvana Lopes</option>
+                        <option>Sueli Teodoro</option>
+                    </select>
+                </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Gerar
+                    PDF</button>
+            </form>
+        </div>
+
+        <!-- Pré-visualização -->
+        <div class="bg-white p-6 rounded shadow">
+            <h2 class="text-xl font-bold mb-4">Pré-visualização</h2>
+            <div id="preview" class="border border-gray-300 p-2 text-sm leading-tight bg-white"
+                style="width: 90mm; height: 30mm; overflow: hidden; font-size: 11px;">
+                <p style="font-size: 12px;"><strong>Saine Health Complex</strong></p> <br>
+                <p><strong>Material:</strong> <span id="preview-material"></span></p>
+                <p><strong>Auto. Sercon - Lote:</strong> <span id="preview-lote"></span></p>
+                <div class="date" style="display: flex; gap: 0.5rem;">
+                    <p><strong>Data Esterilização:</strong> <span id="preview-data-esterilizacao"></span></p>
+                    <p><strong>Validade:</strong> <span id="preview-validade"></span></p>
+                </div>
+                <p><strong>Temperatura Ciclo:</strong> <span id="preview-temperatura"></span></p>
+                <p><strong>Resp. Esterilização:</strong> <span id="preview-responsavel"></span></p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('etiquetaForm');
+        const fields = ['material', 'lote', 'data_esterilizacao', 'validade', 'temperatura', 'responsavel'];
+
+        fields.forEach(field => {
+            document.querySelector(`[name=${field}]`).addEventListener('input', updatePreview);
+        });
+
+        function updatePreview() {
+            fields.forEach(field => {
+                const value = document.querySelector(`[name=${field}]`).value;
+                document.getElementById(`preview-${field.replace('_', '-')}`).textContent = value;
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            const response = await axios.post('gerar_pdf.php', formData, {
+                responseType: 'blob',
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+
+            const blob = new Blob([response.data], {
+                type: 'application/pdf'
+            });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'etiqueta.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+
+</html>
