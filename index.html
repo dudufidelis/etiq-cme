@@ -4,59 +4,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Etiquetas</title>
+    <meta name="author" content="Eduardo Fidelis / fideliscode.com.br">
+    <title>Gerador de Etiquetas | CME</title>
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="script.js"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen p-6">
+<body class="min-h-screen p-6" style="background-color: #f4f4f4;">
     <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <!-- Formulário -->
-        <div class="bg-white p-6 rounded shadow">
-            <h2 class="text-xl font-bold mb-4">Dados da Etiqueta</h2>
+        <!-- Forms -->
+        <div class="bg-white p-6 rounded shadow-md">
+            <h2 class="text-2xl font-bold mb-4">Gerador de Etiquetas</h2>
             <form id="etiquetaForm" method="POST" class="space-y-4">
                 <div>
                     <label class="font-semibold">Material:</label>
-                    <input type="text" name="material" class="w-full p-2 border rounded" required>
+                    <input type="text" name="material" class="w-full p-2 border rounded mt-2" required>
                 </div>
                 <div>
                     <label class="font-semibold">Auto. Sercon - Lote:</label>
-                    <input type="number" name="lote" class="w-full p-2 border rounded" required>
+                    <input type="number" name="lote" class="w-full p-2 border rounded mt-2" required>
                 </div>
                 <div>
-                    <label class="font-semibold">Data Esterilização:</label>
-                    <input type="date" name="data_esterilizacao" class="w-full p-2 border rounded" required>
+                    <label class="font-semibold">Data de esterilização:</label>
+                    <input type="date" name="data_esterilizacao" class="w-full p-2 border rounded mt-2" required>
                 </div>
                 <div>
                     <label class="font-semibold">Validade:</label>
-                    <input type="date" name="validade" class="w-full p-2 border rounded" required>
+                    <input type="date" name="validade" class="w-full p-2 border rounded mt-2" required>
                 </div>
                 <div>
-                    <label class="font-semibold">Temperatura Ciclo:</label>
-                    <select name="temperatura" class="w-full p-2 border rounded">
+                    <label class="font-semibold">Temperatura ciclo:</label>
+                    <select name="temperatura" class="w-full p-2 border rounded mt-2">
                         <option value="121ºC">121ºC</option>
                         <option value="134ºC">134ºC</option>
                     </select>
                 </div>
                 <div>
                     <label class="font-semibold">Resp. Esterilização:</label>
-                    <select name="responsavel" class="w-full p-2 border rounded">
+                    <select name="responsavel" class="w-full p-2 border rounded mt-2">
                         <option>Herlania Figueira</option>
                         <option>Macenilde Lopes</option>
                         <option>Patricia de Castro</option>
                         <option>Silvana Lopes</option>
                         <option>Sueli Teodoro</option>
+                        <option>Ana Carolina</option>
                     </select>
                 </div>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Gerar
-                    PDF</button>
+                <button type="submit" class="bg-sky-900 text-white px-4 py-2 rounded hover:bg-sky-950">Gerar
+                    Etiqueta</button>
             </form>
         </div>
 
-        <!-- Pré-visualização -->
-        <div class="bg-white p-6 rounded shadow">
-            <h2 class="text-xl font-bold mb-4">Pré-visualização</h2>
+        <!-- Preview -->
+        <div class="bg-white p-6 rounded shadow-md h-max">
+            <h2 class="text-2xl font-bold mb-4">Preview</h2>
             <div id="preview" class="border border-gray-300 p-2 text-sm leading-tight bg-white"
                 style="width: 90mm; height: 30mm; overflow: hidden; font-size: 11px;">
                 <p style="font-size: 12px;"><strong>Saine Health Complex</strong></p> <br>
@@ -72,48 +76,6 @@
 
         </div>
     </div>
-
-    <script>
-        const form = document.getElementById('etiquetaForm');
-        const fields = ['material', 'lote', 'data_esterilizacao', 'validade', 'temperatura', 'responsavel'];
-
-        fields.forEach(field => {
-            document.querySelector(`[name=${field}]`).addEventListener('input', updatePreview);
-        });
-
-        function updatePreview() {
-            fields.forEach(field => {
-                const value = document.querySelector(`[name=${field}]`).value;
-                document.getElementById(`preview-${field.replace('_', '-')}`).textContent = value;
-            });
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const formData = new FormData(form);
-
-            const response = await axios.post('gerar_pdf.php', formData, {
-                responseType: 'blob',
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-
-            const blob = new Blob([response.data], {
-                type: 'application/pdf'
-            });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'etiqueta.pdf';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        });
-    </script>
 </body>
 
 </html>

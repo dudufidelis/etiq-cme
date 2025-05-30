@@ -15,9 +15,6 @@ $options = new Options();
 $options->set('isHtml5ParserEnabled', true);
 $dompdf = new Dompdf($options);
 
-$imgData = base64_encode(file_get_contents('logo.png'));
-$src = 'data:image/png;base64,' . $imgData;
-
 $html = '
 <!DOCTYPE html>
 <html>
